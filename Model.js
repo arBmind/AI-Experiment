@@ -39,7 +39,12 @@ function RecorderModel() {
         sendArchive: function () {
             if (0 === archive.length) return;
             var load = JSON.stringify(archive);
-            // TODO
+
+            var req = new XMLHttpRequest();
+            req.open("POST", "TODO", false);
+            req.send(load);
+            if (req.status === 0) console.log(req.responseText);
+
             archive = [];
         },
         done: finishRecord,
