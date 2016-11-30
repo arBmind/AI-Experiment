@@ -21,11 +21,13 @@ ApplicationWindow {
                     touchArea.xxxx.done();
                     canvas.requestPaint();
                     textInput.text = "";
+                    textInput.focus = true;
                 }
             }
             TextInput {
                 Layout.fillWidth: true
                 id: textInput
+                focus: true
 
                 onTextChanged: {
                     if (text !== "") {
