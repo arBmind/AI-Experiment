@@ -35,9 +35,6 @@ public class DrawingView extends View {
     private Canvas drawCanvas;
     private Bitmap canvasBitmap;
     static long startTime = 0;
-    static long lastTime = 0;
-    static long showTime = 0;
-    static boolean newStroke = true;
     static String DeviceModel = Build.MODEL;
     int recordcount=0;
     int strokecount=1;
@@ -89,6 +86,7 @@ public class DrawingView extends View {
         strokecount=1;
         jsonCreate.clear();
         invalidate();
+        startTime = System.currentTimeMillis();
     }
 
 
@@ -122,15 +120,8 @@ public class DrawingView extends View {
             case MotionEvent.ACTION_MOVE:
                 recordcount++;
                 recordSize++;
-                startTime = System.currentTimeMillis();
-                if (newStroke == true) {
-                    showTime = 0;
-                    newStroke = false;
-                } else {
-                    showTime = (showTime + (System.currentTimeMillis() - lastTime));
-                }
 
-                double showTimeDouble = (double) showTime / 10000;
+                double showTimeDouble = (double) (System.currentTimeMillis() - startTime) / 1000.;
                 TextView txtView = (TextView) ((Activity) context).findViewById(R.id.Data);
                 drawPath.lineTo(touchX, touchY);
 
@@ -151,7 +142,6 @@ public class DrawingView extends View {
                 drawPath.lineTo(touchX, touchY);
                 drawCanvas.drawPath(drawPath, drawPaint);
                 drawPath.reset();
-                newStroke = true;
                 recordcount=0;
                 strokecount++;
                 Log.i("Reiko", "neuer Stroke");
