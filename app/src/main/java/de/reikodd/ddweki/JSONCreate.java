@@ -1,36 +1,27 @@
 package de.reikodd.ddweki;
 
-import java.util.HashMap;
+import java.util.List;
 
 public class JSONCreate {
-    HashMap<Integer, HashMap<Integer, String>> data = new HashMap<Integer, HashMap<Integer, String>>();
+    List<String> strokes = new List<String>();
 
-    static JSONCreate jSONCreate=new JSONCreate();
+    List<String> stroke = new List<String>();
 
-    public void put(int x, int y, String value) {
-        HashMap<Integer, String> m = data.get(x);
-        if (m == null)
-            m = new HashMap<Integer, String>();
-        m.put(y, value);
-        data.put(x, m);
+    public void addStroke(String value) {
+        stroke.add(value);
     }
 
-    public String get(int x, int y) {
-        HashMap<Integer, String> m = data.get(x);
-        if (m == null)
-            return null;
-        return m.get(y);
+    public void endstroke() {
+        strokes.add("[" + String.join(",", stroke) + "]");
+        stroke.clear();
     }
 
-    public int sizex(int x) {
-        HashMap<Integer, String> m = data.get(x);
-        if (m == null)
-            return 0;
-        return m.size();
+    public String getJSON() {
+        return "[" + String.join(",", strokes) + "]";
     }
 
     public void clear() {
-        data.clear();
+        strokes.clear();
+        stroke.clear();
     }
-
 }

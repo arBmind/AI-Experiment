@@ -24,6 +24,7 @@ import java.io.PrintWriter;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Locale;
 
 /**
  * zeichnet eine Linie in ein Canvas
@@ -35,17 +36,9 @@ public class DrawingView extends View {
     private Canvas drawCanvas;
     private Bitmap canvasBitmap;
     static long startTime = 0;
-    static long lastTime = 0;
-    static long showTime = 0;
-    static boolean newStroke = true;
     static String DeviceModel = Build.MODEL;
-    int recordcount=0;
-    int strokecount=1;
-    int recordSize=0;
-    int recordOutputSize=0;
 
-
-    DecimalFormat decimalFormat = new DecimalFormat("0.00000");
+    DecimalFormat decimalFormat = new DecimalFormat("0.00000", new DecimalFormatSymbols(locale.US));
     JSONCreate jsonCreate = new JSONCreate();
     Context context;
 
@@ -83,12 +76,9 @@ public class DrawingView extends View {
         drawCanvas.drawColor(0, PorterDuff.Mode.CLEAR);
         TextView txtView = (TextView) ((Activity) context).findViewById(R.id.Data);
         txtView.setText("");
-        recordcount=0;
-        recordSize=0;
-        recordOutputSize=0;
-        strokecount=1;
         jsonCreate.clear();
         invalidate();
+        startTime = System.currentTimeMillis();
     }
 
 
@@ -108,6 +98,10 @@ public class DrawingView extends View {
         drawCanvas.drawColor(Color.WHITE);
     }
 
+    static String JsonHashEntry(String key, double value) {
+        return "\"" + key + "\":" + decimalFormat.format(value);
+    }
+
     @Override
     public boolean onTouchEvent(MotionEvent event) {
 
@@ -120,40 +114,27 @@ public class DrawingView extends View {
                 break;
 
             case MotionEvent.ACTION_MOVE:
-                recordcount++;
-                recordSize++;
-                startTime = System.currentTimeMillis();
-                if (newStroke == true) {
-                    showTime = 0;
-                    newStroke = false;
-                } else {
-                    showTime = (showTime + (System.currentTimeMillis() - lastTime));
-                }
-
-                double showTimeDouble = (double) showTime / 10000;
-                TextView txtView = (TextView) ((Activity) context).findViewById(R.id.Data);
                 drawPath.lineTo(touchX, touchY);
 
-                String jsonOutput = "{" +
-                        "\"x\":" + decimalFormat.format(event.getX()).replace(",", ".") + "," +
-                        "\"y\":" + decimalFormat.format(event.getY()).replace(",", ".") + "," +
-                        "\"t\":" + decimalFormat.format(showTimeDouble).replace(",", ".") + "," +
-                        "\"p\":" + decimalFormat.format(event.getPressure()).replace(",", ".") + "}";
+                double showTimeDouble = (double) (System.currentTimeMillis() - startTime) / 1000.;
+                String jsonOutput = "{" + String.join(",", new String[]{
+                    JsonHashEntry("x", event.getX()),
+                    JsonHashEntry("y", event.getY()),
+                    JsonHashEntry("t", showTimeDouble),
+                    JsonHashEntry("p", event.getPressure())
+                }) + "}";
 
+                TextView txtView = (TextView) ((Activity) context).findViewById(R.id.Data);
                 txtView.setText(jsonOutput);
-                jsonCreate.put(strokecount, recordcount, jsonOutput);
 
-                Log.i("Reiko", jsonOutput);
-                lastTime = startTime;
+                jsonCreate.addStroke(jsonOutput);
                 break;
 
             case MotionEvent.ACTION_UP:
                 drawPath.lineTo(touchX, touchY);
                 drawCanvas.drawPath(drawPath, drawPaint);
                 drawPath.reset();
-                newStroke = true;
-                recordcount=0;
-                strokecount++;
+                jsonCreate.endStroke();
                 Log.i("Reiko", "neuer Stroke");
                 break;
             default:
@@ -164,80 +145,27 @@ public class DrawingView extends View {
     }
 
     public void writeToSDFile(){
-
-        File root = android.os.Environment.getExternalStorageDirectory();
-        File dir = new File (root.getAbsolutePath() + "/Reiko");
-        dir.mkdirs();
-        Calendar c = Calendar.getInstance();
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_HHmmss");
-        String filename = sdf.format(c.getTimeInMillis()) + ".txt";
         EditText desctxt = (EditText) ((Activity)context).findViewById(R.id.Description);
-        File file = new File(dir, filename);
-        int stroke = 1;
         String description = desctxt.getText().toString();
 
         try {
-            FileOutputStream f = new FileOutputStream(file);
-            PrintWriter pw = new PrintWriter(f);
             StringBuilder sb = new StringBuilder();
-            if (jsonCreate.sizex(stroke) == 0) {
-                pw.write("keine Daten" + "\r\n");
-                sb.append("keine Daten");
-            } else {
-                pw.write("[{" + "\r\n");
-                sb.append("[{\n");
-                pw.write("\"strokes\":[" + "\r\n");
-                sb.append("\"strokes\":[\n");
 
-                for (int i = 1; i <= jsonCreate.sizex(stroke); i++) {
-                    recordOutputSize++;
+            sb.append("[{\"strokes\":");
+            sb.append(jsonCreate.getJSON());
+            sb.append(",");
 
-                    if(i==1)
-                    {
-                        pw.write("[");
-                        sb.append("[");
-                    }
+            sb.append("\"description\":\"");
+            sb.append(description);
+            sb.append("\",");
 
-                    if(i<jsonCreate.sizex(stroke))
-                    {
-                        pw.write(jsonCreate.get(stroke, i)+"," + "\r\n");
-                        sb.append(jsonCreate.get(stroke, i) + ",\n");
-                    }
+            sb.append("\"client\":\"");
+            sb.append(DeviceModel);
+            sb.append("\"");
+            sb.append("}]");
 
-                    if(i == jsonCreate.sizex(stroke) && recordOutputSize<recordSize)
-                    {
-                        pw.write(jsonCreate.get(stroke, i)+"]," + "\r\n");
-                        sb.append(jsonCreate.get(stroke, i) + "],\n");
-                    }
-
-                    if(i == jsonCreate.sizex(stroke) && recordOutputSize==recordSize)
-                    {
-                        pw.write(jsonCreate.get(stroke, i)+"]" + "\r\n");
-                        sb.append(jsonCreate.get(stroke, i) + "]\n");
-                    }
-
-                    if (i == jsonCreate.sizex(stroke)) {
-                        stroke++;
-                        i = 0;
-                        if (jsonCreate.sizex(stroke) == 0) {
-                            pw.write("]," + "\r\n");
-                            sb.append("],\n");
-                            pw.write("\"description\":\""+ description + "\"," + "\r\n");
-                            sb.append("\"description\":\""+ description + "\"," + "\n");
-                            pw.write("\"client\":\""+ DeviceModel +"\"" + "\r\n");
-                            sb.append("\"client\":\""+ DeviceModel +"\"" + "\n");
-                            pw.write("}]");
-                            sb.append("}]");
-                        }
-                    }
-                }
-            }
-            pw.flush();
-            pw.close();
-            f.close();
             new URLConnection().execute("http://52.212.255.218/datas/",sb.toString());
             //new URLConnection().execute("http://groens.ch/ai-experment-api/datas",sb.toString());
-
         } catch (FileNotFoundException e) {
             e.printStackTrace();
             Log.i("Reiko", "Datei nicht gefunden");
