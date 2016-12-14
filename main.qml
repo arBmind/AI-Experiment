@@ -9,6 +9,15 @@ ApplicationWindow {
     height: 480
     title: qsTr("Touch Recorder")
 
+    ModelSignals {
+        id: sig
+        onStrokeAdded: strokeView.paintTo(p);
+        onStrokeEnded: strokeView.endStroke();
+        onGlyphCleared: strokeView.clear();
+    }
+
+    property var model: Model.RecorderModel(sig);
+
     ColumnLayout {
         anchors.fill: parent
 
@@ -18,8 +27,7 @@ ApplicationWindow {
             Button {
                 text: "Done"
                 onClicked: {
-                    touchArea.xxxx.done();
-                    canvas.requestPaint();
+                    model.done();
                     textInput.text = "";
                     textInput.focus = true;
                 }
@@ -29,18 +37,11 @@ ApplicationWindow {
                 id: textInput
                 focus: true
 
-                onTextChanged: {
-                    if (text !== "") {
-                        touchArea.xxxx.resetInput(text);
-                        canvas.requestPaint();
-                    }
-                }
+                onTextChanged: model.setText(text)
             }
             Button {
                 text: "Upload"
-                onClicked: {
-                    touchArea.xxxx.sendArchive();
-                }
+                onClicked: model.sendArchive();
             }
         }
 
@@ -49,32 +50,15 @@ ApplicationWindow {
             Layout.fillHeight: true
             id: touchArea
 
-            property var xxxx: Model.RecorderModel();
-
-            ListModel {
-                id: recorded
-            }
-
             onTouchUpdated: {
-                if (touchPoints.length === 0) {
-                    xxxx.recordStrokeDone();
-                    return;
-                }
-                xxxx.recordPoint(touchPoints[0]);
-                canvas.requestPaint();
+                if (touchPoints.length === 0) model.recordStrokeDone();
+                else model.recordPoint(touchPoints[0]);
             }
 
-            Canvas {
+            StrokeView {
                 anchors.fill: parent
-                id: canvas
-
-                onPaint: {
-                    var ctx = getContext("2d");
-                    touchArea.xxxx.paint(ctx, canvas);
-                }
-
+                id: strokeView
             }
         }
-
     }
 }

@@ -1,39 +1,61 @@
 .pragma library
 
-function RecorderModel() {
-    var startDate = new Date();
+function RecorderModel(sig) {
+    function noop() {}
+
     var archive = [];
-    var activeRecord = null;
-    var activeStrokes = [];
-    var activeStroke = null;
 
-    function createRecord(text) {
-        activeRecord = {
-            strokes: [],
-            description: text,
-            client: "Qt Recorder"
-        };
-        startDate = new Date();
-        activeStrokes = activeRecord.strokes;
-    }
+    var createItem = noop;
+    var finishRecord = noop;
+    var finishStroke = noop;
+    var addStrokePoint = noop;
 
-    function theActiveStroke() {
-        if (null === activeStroke) {
-            activeStroke = [];
-            activeStrokes.push(activeStroke);
+    function startRecordFor(text) {
+        var startDate = new Date();
+        var strokes = [];
+        sig.glyphCleared();
+
+        createItem = function(point) {
+            return {
+                t: (new Date()) - startDate,
+                x: point.x,
+                y: point.y,
+                p: point.pressure
+            };
         }
-        return activeStroke;
-    }
 
-    function finishRecord() {
-        if (null === activeRecord) return;
-        if (0 !== activeStrokes.length && 0 !== activeStrokes[0].length) {
-            archive.push(activeRecord);
+        finishRecord = function() {
+            if (text.length !== 0 && strokes.length !== 0) {
+                var record = {
+                    strokes: strokes,
+                    description: text,
+                    client: "Qt Recorder"
+                };
+                archive.push(record);
+            }
+            startRecordFor("");
         }
-        activeRecord = null;
-        activeStrokes = [];
-        activeStroke = null;
+
+        function __addStrokePoint(p) {
+            var item = createItem(p);
+            var stroke = [item];
+            sig.strokeAdded(item);
+            addStrokePoint = function(p) {
+                var item = createItem(p);
+                stroke.push(item);
+                sig.strokeAdded(item);
+            }
+            finishStroke = function() {
+                if (stroke.length >= 2) strokes.push(stroke);
+                finishStroke = noop;
+                addStrokePoint = __addStrokePoint;
+                sig.strokeEnded();
+            }
+        }
+        finishStroke = noop;
+        addStrokePoint = __addStrokePoint;
     }
+    startRecordFor("");
 
     return {
         sendArchive: function () {
@@ -41,41 +63,21 @@ function RecorderModel() {
             var load = JSON.stringify(archive);
 
             var req = new XMLHttpRequest();
-            req.open("POST", "TODO", false);
+            req.open("POST", "http://groens.ch/ai-experment-api/datas", false);
             req.send(load);
             if (req.status === 0) console.log(req.responseText);
+            else {
+                console.log("success");
+                console.log(req.responseText);
+            }
 
             archive = [];
         },
-        done: finishRecord,
-        resetInput: function (text) {
-            finishRecord();
-            createRecord(text);
+        done: function () { finishRecord(); },
+        setText: function (text) {
+            startRecordFor(text);
         },
-        recordPoint: function (point) {
-            var date = new Date();
-            var item = {
-                t: date - startDate,
-                x: point.x,
-                y: point.y,
-                p: point.pressure
-            };
-            theActiveStroke().push(item);
-        },
-        recordStrokeDone: function () {
-            activeStroke = null;
-        },
-        paint: function (ctx, canvas) {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            activeStrokes.forEach(function(stroke) {
-                if (stroke.length === 0) return;
-                ctx.beginPath();
-                ctx.moveTo(stroke[0].x, stroke[0].y);
-                for (var i = 1; i < stroke.length; ++i) {
-                    ctx.lineTo(stroke[i].x, stroke[i].y);
-                }
-                ctx.stroke();
-            });
-        }
+        recordPoint: function (point) { addStrokePoint(point); },
+        recordStrokeDone: function () { finishStroke(); },
     };
 }

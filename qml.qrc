@@ -2,5 +2,7 @@
     <qresource prefix="/">
         <file>main.qml</file>
         <file>Model.js</file>
+        <file>StrokeView.qml</file>
+        <file>ModelSignals.qml</file>
     </qresource>
 </RCC>
