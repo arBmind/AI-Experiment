@@ -33,9 +33,9 @@ public class MainActivity extends Activity implements View.OnClickListener {
 
         if(view.getId()==R.id.save)
         {
-            drawView.writeToSDFile();
+            drawView.postJson();
             Toast.makeText(MainActivity.this,
-                    "JSON gespeichert", Toast.LENGTH_LONG).show();
+                    "JSON send to database", Toast.LENGTH_LONG).show();
             drawView.startNew();
         }
     }

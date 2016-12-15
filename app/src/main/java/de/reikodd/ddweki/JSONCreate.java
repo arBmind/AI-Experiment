@@ -1,23 +1,25 @@
 package de.reikodd.ddweki;
 
+import android.text.TextUtils;
+
+import java.util.ArrayList;
 import java.util.List;
 
 public class JSONCreate {
-    List<String> strokes = new List<String>();
-
-    List<String> stroke = new List<String>();
+    List<String> strokes = new ArrayList<String>();
+    List<String> stroke = new ArrayList<String>();
 
     public void addStroke(String value) {
         stroke.add(value);
     }
 
-    public void endstroke() {
-        strokes.add("[" + String.join(",", stroke) + "]");
+    public void endStroke() {
+        strokes.add("[" + TextUtils.join(",", stroke) + "]");
         stroke.clear();
     }
 
     public String getJSON() {
-        return "[" + String.join(",", strokes) + "]";
+        return "[" + TextUtils.join(",", strokes) + "]";
     }
 
     public void clear() {

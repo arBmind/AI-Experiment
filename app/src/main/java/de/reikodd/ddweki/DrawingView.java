@@ -9,6 +9,7 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PorterDuff;
 import android.os.Build;
+import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -22,6 +23,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Locale;
@@ -38,7 +40,7 @@ public class DrawingView extends View {
     static long startTime = 0;
     static String DeviceModel = Build.MODEL;
 
-    DecimalFormat decimalFormat = new DecimalFormat("0.00000", new DecimalFormatSymbols(locale.US));
+    static DecimalFormat decimalFormat = new DecimalFormat("0.00000", new DecimalFormatSymbols(Locale.US));
     JSONCreate jsonCreate = new JSONCreate();
     Context context;
 
@@ -117,7 +119,7 @@ public class DrawingView extends View {
                 drawPath.lineTo(touchX, touchY);
 
                 double showTimeDouble = (double) (System.currentTimeMillis() - startTime) / 1000.;
-                String jsonOutput = "{" + String.join(",", new String[]{
+                String jsonOutput = "{" + TextUtils.join(",", new String[]{
                     JsonHashEntry("x", event.getX()),
                     JsonHashEntry("y", event.getY()),
                     JsonHashEntry("t", showTimeDouble),
@@ -144,11 +146,10 @@ public class DrawingView extends View {
         return true;
     }
 
-    public void writeToSDFile(){
+    public void postJson(){
         EditText desctxt = (EditText) ((Activity)context).findViewById(R.id.Description);
         String description = desctxt.getText().toString();
 
-        try {
             StringBuilder sb = new StringBuilder();
 
             sb.append("[{\"strokes\":");
@@ -166,11 +167,5 @@ public class DrawingView extends View {
 
             new URLConnection().execute("http://52.212.255.218/datas/",sb.toString());
             //new URLConnection().execute("http://groens.ch/ai-experment-api/datas",sb.toString());
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-            Log.i("Reiko", "Datei nicht gefunden");
-        } catch (IOException e) {
-            e.printStackTrace();
         }
-    }
 }
