@@ -5,7 +5,7 @@ defmodule TouchRecorderWeb.ApiChallengeController do
 
   def index(conn, _params) do
     challenges = Repo.all(Challenge)
-    json conn, Enum.map(challenges, &challenge_json/1)
+    json conn, %{ version: "1.0", challenges: Enum.map(challenges, &challenge_json/1) }
   end
 
   def challenge_json(challenge) do
