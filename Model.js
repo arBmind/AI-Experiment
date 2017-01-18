@@ -60,10 +60,18 @@ function RecorderModel(sig) {
     return {
         sendArchive: function () {
             if (0 === archive.length) return;
-            var load = JSON.stringify(archive);
+            var sendData = {
+                archive: archive,
+                challenge_id: 0,
+                author: "me",
+            };
+
+            var load = JSON.stringify({submission: sendData});
+            //console.log(load);
 
             var req = new XMLHttpRequest();
-            req.open("POST", "http://groens.ch/ai-experment-api/datas", false);
+            req.open("POST", "http://127.0.0.1:4000/api/submissions", false);
+            req.setRequestHeader("Content-Type", "application/json");
             req.send(load);
             if (req.status === 0) console.log(req.responseText);
             else {
