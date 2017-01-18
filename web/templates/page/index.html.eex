@@ -1,0 +1,27 @@
+<div class="jumbotron">
+  <h2><%= gettext "Welcome to %{name}", name: "Touch Recorder WebHost!" %></h2>
+  <p class="lead">An archive for classified touch inputs.</p>
+</div>
+
+<div class="row marketing">
+  <div class="col-lg-6">
+    <h4>Pages</h4>
+    <ul>
+      <li>
+        <%= link "Manage challenges", to: challenge_path(@conn, :index) %>
+      </li>
+      <li>
+        <%= link "Review submissions", to: submission_path(@conn, :index) %>
+      </li>
+    </ul>
+  </div>
+
+  <div class="col-lg-6">
+    <h4>External</h4>
+    <ul>
+      <li>
+        <a href="https://github.com/dresden-weekly/AI-Experiment">Github Repo</a>
+      </li>
+    </ul>
+  </div>
+</div>
