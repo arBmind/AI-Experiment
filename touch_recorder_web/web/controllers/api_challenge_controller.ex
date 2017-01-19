@@ -10,6 +10,7 @@ defmodule TouchRecorderWeb.ApiChallengeController do
 
   def challenge_json(challenge) do
     %{
+      id: challenge.id,
       name: challenge.name,
       details: challenge.details,
       description_set: challenge.description_set
