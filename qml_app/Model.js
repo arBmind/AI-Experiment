@@ -58,12 +58,12 @@ function RecorderModel(sig) {
     startRecordFor("");
 
     return {
-        sendArchive: function () {
+        sendArchive: function (challenge_id, author) {
             if (0 === archive.length) return;
             var sendData = {
                 archive: archive,
-                challenge_id: 0,
-                author: "me",
+                challenge_id: challenge_id,
+                author: author,
             };
 
             var load = JSON.stringify({submission: sendData});

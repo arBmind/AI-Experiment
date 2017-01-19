@@ -4,5 +4,6 @@
         <file>Model.js</file>
         <file>StrokeView.qml</file>
         <file>ModelSignals.qml</file>
+        <file>ChallengeModel.qml</file>
     </qresource>
 </RCC>
