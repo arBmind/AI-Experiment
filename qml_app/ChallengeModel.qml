@@ -13,7 +13,7 @@ ListModel {
     function reload() {
         root.clear();
         var req = new XMLHttpRequest;
-        req.open("GET", "https://sheltered-fjord-46378.herokuapp.com/api/challenges");
+        req.open("GET", "https://touchrecorderweb.herokuapp.com/api/challenges");
 
         req.onreadystatechange = function(event) {
             status = req.readyState;
