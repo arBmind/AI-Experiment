@@ -16,3 +16,9 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 DISTFILES += \
 	build.txt
+
+contains(ANDROID_TARGET_ARCH,armeabi-v7a) {
+	ANDROID_EXTRA_LIBS = \
+		C:/C/Lib/OpenSSL-Android/openssl-1.0.2/armeabi-v7a/lib/libcrypto.so \
+		C:/C/Lib/OpenSSL-Android/openssl-1.0.2/armeabi-v7a/lib/libssl.so
+}
