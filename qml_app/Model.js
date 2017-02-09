@@ -70,7 +70,7 @@ function RecorderModel(sig) {
             //console.log(load);
 
             var req = new XMLHttpRequest();
-            req.open("POST", "http://127.0.0.1:4000/api/submissions", false);
+            req.open("POST", "https://sheltered-fjord-46378.herokuapp.com/api/submissions", false);
             req.setRequestHeader("Content-Type", "application/json");
             req.send(load);
             if (req.status === 0) console.log(req.responseText);

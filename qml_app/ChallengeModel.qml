@@ -13,11 +13,16 @@ ListModel {
     function reload() {
         root.clear();
         var req = new XMLHttpRequest;
-        req.open("GET", "http://127.0.0.1:4000/api/challenges");
-        req.onreadystatechange = function() {
+        req.open("GET", "https://sheltered-fjord-46378.herokuapp.com/api/challenges");
+
+        req.onreadystatechange = function(event) {
             status = req.readyState;
             if (req.readyState === XMLHttpRequest.DONE) {
-                var jsonResponse = JSON.parse(req.responseText);
+                var text = req.responseText;
+                //console.log(text);
+                //var code = req.getAllResponseHeaders();
+                //console.log(code);
+                var jsonResponse = JSON.parse(text);
                 if (jsonResponse.error !== undefined) {
                     console.log("error: " + jsonResponse.error);
                     return;
