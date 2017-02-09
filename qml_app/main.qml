@@ -64,16 +64,20 @@ ApplicationWindow {
     property variant activeChallenge
     property int activeIndex: 0
 
+    ModelSignals { id: sig }
+    property var recorderModel: Model.RecorderModel(sig);
+
     function startRecorder(index) {
         activeChallenge = challenges.jsonData[index];
         activeIndex = 0;
-        stack.push(recordView);
+        stack.push(recordView, { recorderModel: recorderModel });
     }
 
     Component {
         id: recordView
 
         Page {
+            property var recorderModel
             header: ToolBar {
                 RowLayout {
                     anchors.fill: parent
@@ -92,15 +96,6 @@ ApplicationWindow {
                     }
                 }
             }
-
-            ModelSignals {
-                id: sig
-                onStrokeAdded: strokeView.paintTo(p);
-                onStrokeEnded: strokeView.endStroke();
-                onGlyphCleared: strokeView.clear();
-            }
-            property var recorderModel: Model.RecorderModel(sig);
-
 
             function recordNext() {
                 recorderModel.done();
@@ -155,6 +150,11 @@ ApplicationWindow {
                         id: strokeView
                     }
                 }
+            }
+            Component.onCompleted: {
+                sig.onStrokeAdded.connect(function(p) { strokeView.paintTo(p) });
+                sig.onStrokeEnded.connect(function() { strokeView.endStroke() });
+                sig.onGlyphCleared.connect(function() { strokeView.clear() });
             }
         }
     }

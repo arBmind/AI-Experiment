@@ -55,7 +55,6 @@ function RecorderModel(sig) {
         finishStroke = noop;
         addStrokePoint = __addStrokePoint;
     }
-    startRecordFor("");
 
     return {
         sendArchive: function (challenge_id, author) {
