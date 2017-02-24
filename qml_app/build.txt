@@ -1,3 +1,6 @@
-Build with Qt 5.7.0
+Build with Qt 5.7.x or 5.8.x
 
 Runs on Windows, Linux, Android and iOS.
+
+Windows and Android OpenSSL binaries: https://indy.fulgan.com/SSL/
+* ssleay32.dll and libeay32.dll have to be in path!

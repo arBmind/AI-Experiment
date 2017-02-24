@@ -120,7 +120,7 @@ ApplicationWindow {
                         padding: 10
 
                         text: "Draw: " + activeChallenge.description_set[activeIndex]
-                        onTextChanged: recorderModel.setText(text)
+                        onTextChanged: recorderModel.setText(activeChallenge.description_set[activeIndex])
                     }
                     Button {
                         font.pixelSize: 16

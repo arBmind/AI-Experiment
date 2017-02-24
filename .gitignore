@@ -25,3 +25,4 @@ erl_crash.dump
 # secrets file as long as you replace its contents by environment
 # variables.
 /touch_recorder_web/config/prod.secret.exs
+*.user.*
