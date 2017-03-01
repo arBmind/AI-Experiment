@@ -39,12 +39,13 @@ ApplicationWindow {
                 delegate: ItemDelegate {
                     text: name
                     font.pixelSize: 16
-                    height: 50
-                    bottomPadding: 30
+                    height: 30 + bottomPadding
+                    bottomPadding: item_description.contentHeight
                     width: listView.width - listView.leftMargin - listView.rightMargin
                     onClicked: startRecorder(index);
 
                     Text {
+                        id: item_description
                         anchors.fill: parent
                         anchors.topMargin: 30
                         anchors.leftMargin: 30
