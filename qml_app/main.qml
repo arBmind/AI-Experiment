@@ -51,8 +51,12 @@ ApplicationWindow {
                         anchors.rightMargin: 30
 
                         text: details
+                        textFormat: Text.StyledText
+                        wrapMode: Text.Wrap
                         clip: true
                         font.pixelSize: 12
+
+                        onLinkActivated: Qt.openUrlExternally(link)
                     }
                 }
 
